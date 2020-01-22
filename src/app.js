@@ -25,10 +25,10 @@ app.get("/articles", (req, res, next) => {
       res.json(
         articles.map(article => ({
           id: article.id,
+          date_published: new Date(article.date_published),
           title: article.title,
           style: article.style,
-          content: article.content,
-          date_published: new Date(article.date_published)
+          content: article.content
         }))
       );
     })
@@ -41,10 +41,10 @@ app.get("/articles/:article_id", (req, res, next) => {
     .then(article => {
       res.json({
         id: article.id,
+        date_published: new Date(article.date_published),
         title: article.title,
         style: article.style,
-        content: article.content,
-        date_published: new Date(article.date_published)
+        content: article.content
       });
     })
     .catch(next);
