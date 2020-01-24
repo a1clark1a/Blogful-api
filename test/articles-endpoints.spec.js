@@ -1,6 +1,9 @@
 const knex = require("knex");
 const app = require("../src/app");
-const { makeArticlesArray } = require("./articles.fixtures");
+const {
+  makeArticlesArray,
+  makeExpectedArticlesArray
+} = require("./articles.fixtures");
 
 describe.only("Articles Endpoints", function() {
   let db;
@@ -19,25 +22,86 @@ describe.only("Articles Endpoints", function() {
 
   afterEach("cleanup", () => db("blogful_articles").truncate());
 
-  context("Given there are articles in the database", () => {
-    const testArticles = makeArticlesArray();
-
-    beforeEach("insert articles", () => {
-      return db.into("blogful_articles").insert(testArticles);
+  describe("GET /articles", () => {
+    context(`Given no articles`, () => {
+      it(`responds with 200 and an empy list`, () => {
+        return supertest(app)
+          .get("/articles")
+          .expect(200, []);
+      });
     });
+    context("Given there are articles in the database", () => {
+      const testArticles = makeArticlesArray();
+      const testExpectedArticles = makeExpectedArticlesArray();
 
-    it("GET /articles responds with 200 and all of the articles", () => {
-      return supertest(app)
-        .get("/articles")
-        .expect(200, testArticles);
+      beforeEach("insert articles", () => {
+        return db.into("blogful_articles").insert(testExpectedArticles);
+      });
+
+      it(" responds with 200 and all of the articles", () => {
+        return supertest(app)
+          .get("/articles")
+          .expect(200, testArticles);
+      });
     });
+  });
 
-    it("GET /articles/:article_id responds with 200 and the specified article", () => {
-      const articleId = 2;
-      const expectedArticle = testArticles[articleId - 1];
+  describe(`GET /articles/:article_id`, () => {
+    context(`Given no articles`, () => {
+      it(`responds with 404`, () => {
+        const articleId = 123456;
+        return supertest(app)
+          .get(`/articles/${articleId}`)
+          .expect(404, { error: { message: `Article doesn't exist` } });
+      });
+    });
+    context(`Given there are articles in the database`, () => {
+      const testArticles = makeArticlesArray();
+      const testExpectedArticles = makeExpectedArticlesArray();
+
+      beforeEach("insert articles", () => {
+        return db.into("blogful_articles").insert(testExpectedArticles);
+      });
+      it("GET /articles/:article_id responds with 200 and the specified article", () => {
+        const articleId = 2;
+        const expectedArticle = testArticles[articleId - 1];
+        return supertest(app)
+          .get(`/articles/${articleId}`)
+          .expect(200, expectedArticle);
+      });
+    });
+  });
+
+  describe(`POST /articles`, () => {
+    it(`creates an article, responding with 201 and the new article`, () => {
+      this.retries(3);
+      const newArticle = {
+        title: "Test new article",
+        style: "Listicle",
+        content: "Test new article content.."
+      };
+
       return supertest(app)
-        .get(`/articles/${articleId}`)
-        .expect(200, expectedArticle);
+        .post("/articles")
+        .send(newArticle)
+        .expect(201)
+        .expect(res => {
+          expect(res.body.title).to.eql(newArticle.title);
+          expect(res.body.style).to.eql(newArticle.style);
+          expect(res.body.content).to.eql(newArticle.content);
+          expect(res.body).to.have.property("id");
+          expect(res.headers.location).to.eql(`/articles/${res.body.id}`);
+          const expected = new Date().toLocaleDateString("en", {
+            timeZone: "UTC"
+          });
+          const actual = new Date(res.body.date_published).toLocaleDateString();
+          expect(actual).to.eql(expected);
+        })
+        .then(postRes =>
+          supertest(app)
+            .get(`/articles/${postRes.body.id}`)
+            .expect(postRes.body)
+        );
     });
   });
 });
