@@ -1,4 +1,5 @@
 const express = require("express");
+const xss = require("xss");
 const ArticleService = require("./articles_service");
 
 const articlesRouter = express.Router();
@@ -14,9 +15,9 @@ articlesRouter
           articles.map(article => ({
             id: article.id,
             date_published: new Date(article.date_published),
-            title: article.title,
+            title: xss(article.title),
             style: article.style,
-            content: article.content
+            content: xss(article.content)
           }))
         );
       })
@@ -26,12 +27,27 @@ articlesRouter
     const knexInstance = req.app.get("db");
     const { title, content, style } = req.body;
     const newArticle = { title, content, style };
+
+    for (const [key, value] of Object.entries(newArticle)) {
+      if (value == null) {
+        return res.status(400).json({
+          error: { message: `Missing '${key}' in request body` }
+        });
+      }
+    }
+
     ArticleService.insertArticle(knexInstance, newArticle)
       .then(article => {
         res
           .status(201)
           .location(`/articles/${article.id}`)
-          .json(article);
+          .json({
+            id: article.id,
+            date_published: new Date(article.date_published),
+            title: xss(article.title),
+            style: article.style,
+            content: xss(article.content)
+          });
       })
       .catch(next);
   });
@@ -46,15 +62,13 @@ articlesRouter.route("/:article_id").get((req, res, next) => {
           error: { message: `Article doesn't exist` }
         });
       }
-      res.json(
-        res.json({
-          id: article.id,
-          date_published: new Date(article.date_published),
-          title: article.title,
-          style: article.style,
-          content: article.content
-        })
-      );
+      res.json({
+        id: article.id,
+        date_published: new Date(article.date_published),
+        title: xss(article.title),
+        style: article.style,
+        content: xss(article.content)
+      });
     })
     .catch(next);
 });
