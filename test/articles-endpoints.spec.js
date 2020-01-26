@@ -32,17 +32,17 @@ describe.only("Articles Endpoints", function() {
       });
     });
     context("Given there are articles in the database", () => {
+      const expectedTestArticles = makeExpectedArticlesArray();
       const testArticles = makeArticlesArray();
-      const testExpectedArticles = makeExpectedArticlesArray();
 
       beforeEach("insert articles", () => {
-        return db.into("blogful_articles").insert(testExpectedArticles);
+        return db.into("blogful_articles").insert(testArticles);
       });
 
       it(" responds with 200 and all of the articles", () => {
         return supertest(app)
           .get("/articles")
-          .expect(200, testArticles);
+          .expect(200, expectedTestArticles);
       });
     });
 
@@ -75,15 +75,15 @@ describe.only("Articles Endpoints", function() {
       });
     });
     context(`Given there are articles in the database`, () => {
+      const expectedTestArticles = makeExpectedArticlesArray();
       const testArticles = makeArticlesArray();
-      const testExpectedArticles = makeExpectedArticlesArray();
 
       beforeEach("insert articles", () => {
-        return db.into("blogful_articles").insert(testExpectedArticles);
+        return db.into("blogful_articles").insert(testArticles);
       });
       it("GET /articles/:article_id responds with 200 and the specified article", () => {
         const articleId = 2;
-        const expectedArticle = testArticles[articleId - 1];
+        const expectedArticle = expectedTestArticles[articleId - 1];
         return supertest(app)
           .get(`/articles/${articleId}`)
           .expect(200, expectedArticle);
@@ -169,10 +169,6 @@ describe.only("Articles Endpoints", function() {
     context(`Given an XSS attack article`, () => {
       const { maliciousArticle, expectedArticle } = makeMaliciousArticle();
 
-      beforeEach("insert malicious article", () => {
-        return db.into("blogful_articles").insert([maliciousArticle]);
-      });
-
       it("removes XSS attack content", () => {
         return supertest(app)
           .post("/articles")
@@ -182,6 +178,41 @@ describe.only("Articles Endpoints", function() {
             expect(res.body.title).to.eql(expectedArticle.title);
             expect(res.body.content).to.eql(expectedArticle.content);
           });
+      });
+    });
+  });
+
+  describe(`DELETE /articles/:article_id`, () => {
+    context(`Given no articles`, () => {
+      it(`responds with 404`, () => {
+        const articleId = 123456;
+        return supertest(app)
+          .delete(`/articles/${articleId}`)
+          .expect(404, { error: { message: `Article doesn't exist` } });
+      });
+    });
+
+    context("Given there are articles in the database", () => {
+      const testArticles = makeArticlesArray();
+      const articlesToFilter = makeExpectedArticlesArray();
+
+      beforeEach("insert articles", () => {
+        return db.into("blogful_articles").insert(testArticles);
+      });
+
+      it("responds with 204 and removes the article", () => {
+        const idToRemove = 2;
+        const expectedArticle = articlesToFilter.filter(
+          article => article.id !== idToRemove
+        );
+        return supertest(app)
+          .delete(`/articles/${idToRemove}`)
+          .expect(204)
+          .then(res =>
+            supertest(app)
+              .get(`/articles`)
+              .expect(expectedArticle)
+          );
       });
     });
   });

@@ -1,4 +1,4 @@
-function makeArticlesArray() {
+function makeExpectedArticlesArray() {
   return [
     {
       id: 1,
@@ -35,7 +35,7 @@ function makeArticlesArray() {
   ];
 }
 
-function makeExpectedArticlesArray() {
+function makeArticlesArray() {
   return [
     {
       id: 1,
