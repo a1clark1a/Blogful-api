@@ -1,6 +1,7 @@
 function makeExpectedArticlesArray() {
   return [
     {
+      author: 1,
       id: 1,
       date_published: "2029-01-22T16:28:32.615Z",
       title: "First test post!",
@@ -13,6 +14,7 @@ function makeExpectedArticlesArray() {
       date_published: "2100-05-22T16:28:32.615Z",
       title: "Second test post!",
       style: "News",
+      author: 2,
       content:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum, exercitationem cupiditate dignissimos est perspiciatis, nobis commodi alias saepe atque facilis labore sequi deleniti. Sint, adipisci facere! Velit temporibus debitis rerum."
     },
@@ -21,6 +23,7 @@ function makeExpectedArticlesArray() {
       date_published: "1919-12-22T16:28:32.615Z",
       title: "Third test post!",
       style: "Listicle",
+      author: 1,
       content:
         "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus, voluptate? Necessitatibus, reiciendis? Cupiditate totam laborum esse animi ratione ipsa dignissimos laboriosam eos similique cumque. Est nostrum esse porro id quaerat."
     },
@@ -28,6 +31,7 @@ function makeExpectedArticlesArray() {
       id: 4,
       date_published: "1919-12-22T16:28:32.615Z",
       title: "Fourth test post!",
+      author: 3,
       style: "Story",
       content:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum molestiae accusamus veniam consectetur tempora, corporis obcaecati ad nisi asperiores tenetur, autem magnam. Iste, architecto obcaecati tenetur quidem voluptatum ipsa quam?"
@@ -38,6 +42,7 @@ function makeExpectedArticlesArray() {
 function makeArticlesArray() {
   return [
     {
+      author: 1,
       id: 1,
       date_published: new Date("2029-01-22T16:28:32.615Z"),
       title: "First test post!",
@@ -50,6 +55,7 @@ function makeArticlesArray() {
       date_published: new Date("2100-05-22T16:28:32.615Z"),
       title: "Second test post!",
       style: "News",
+      author: 2,
       content:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum, exercitationem cupiditate dignissimos est perspiciatis, nobis commodi alias saepe atque facilis labore sequi deleniti. Sint, adipisci facere! Velit temporibus debitis rerum."
     },
@@ -58,6 +64,7 @@ function makeArticlesArray() {
       date_published: new Date("1919-12-22T16:28:32.615Z"),
       title: "Third test post!",
       style: "Listicle",
+      author: 1,
       content:
         "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus, voluptate? Necessitatibus, reiciendis? Cupiditate totam laborum esse animi ratione ipsa dignissimos laboriosam eos similique cumque. Est nostrum esse porro id quaerat."
     },
@@ -66,6 +73,7 @@ function makeArticlesArray() {
       date_published: new Date("1919-12-22T16:28:32.615Z"),
       title: "Fourth test post!",
       style: "Story",
+      author: 3,
       content:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum molestiae accusamus veniam consectetur tempora, corporis obcaecati ad nisi asperiores tenetur, autem magnam. Iste, architecto obcaecati tenetur quidem voluptatum ipsa quam?"
     }
@@ -77,6 +85,7 @@ function makeMaliciousArticle() {
     id: 911,
     style: "How-to",
     date_published: new Date().toISOString(),
+    author: 1,
     title: 'Naughty naughty very naughty <script>alert("xss");</script>',
     content: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`
   };

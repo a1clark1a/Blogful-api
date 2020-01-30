@@ -11,7 +11,8 @@ serializedArticle = article => ({
   date_published: new Date(article.date_published),
   title: xss(article.title),
   style: article.style,
-  content: xss(article.content)
+  content: xss(article.content),
+  author: article.author
 });
 
 articlesRouter
@@ -26,7 +27,8 @@ articlesRouter
             date_published: new Date(article.date_published),
             title: xss(article.title),
             style: article.style,
-            content: xss(article.content)
+            content: xss(article.content),
+            author: article.author
           }))
         );
       })
@@ -34,7 +36,7 @@ articlesRouter
   })
   .post(jsonParser, (req, res, next) => {
     const knexInstance = req.app.get("db");
-    const { title, content, style } = req.body;
+    const { title, content, style, author } = req.body;
     const newArticle = { title, content, style };
 
     for (const [key, value] of Object.entries(newArticle)) {
@@ -44,7 +46,7 @@ articlesRouter
         });
       }
     }
-
+    newArticle.author = author;
     ArticleService.insertArticle(knexInstance, newArticle)
       .then(article => {
         res
@@ -55,7 +57,8 @@ articlesRouter
             date_published: new Date(article.date_published),
             title: xss(article.title),
             style: article.style,
-            content: xss(article.content)
+            content: xss(article.content),
+            author: article.author
           });
       })
       .catch(next);
@@ -105,7 +108,6 @@ articlesRouter
         }
       });
     }
-
     ArticleService.updateArticle(knexInstance, article_id, articleToUpdate)
       .then(numRowsAffected => {
         res.status(204).end();
