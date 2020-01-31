@@ -59,9 +59,9 @@ commentsRouter
           return res.status(404).json({
             error: { message: `Comment doesn't exist` }
           });
-          res.comment = comment;
-          next();
         }
+        res.comment = comment;
+        next();
       })
       .catch(next);
   })
