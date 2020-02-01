@@ -13,7 +13,7 @@ describe.only("Articles Endpoints", function() {
   before("make knex instance", () => {
     db = knex({
       client: "pg",
-      connection: process.env.TEST_DB_URL
+      connection: process.env.TEST_DATABASE_URL
     });
     app.set("db", db);
   });
@@ -149,7 +149,7 @@ describe.only("Articles Endpoints", function() {
     });
 
     context("Clean post", () => {
-      it(`creates an article, responding with 201 and the new article`, () => {
+      it(`creates an article, responding with 201 and the new article`, function() {
         this.retries(3);
         const newArticle = {
           title: "Test new article",
